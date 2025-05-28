@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BudgetBloom Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #2563eb;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0 20px;
+    }
+    .container {
+      background: white;
+      color: #111;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 100%;
+      padding: 30px 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #2563eb;
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 8px #2563ebaa;
+    }
+    button {
+      background: #2563eb;
+      border: none;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #1e40af;
+    }
+    .hidden {
+      display: none;
+    }
+    .error {
+      color: #e02424;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="loginContainer">
+    <h2>BudgetBloom Login</h2>
+    <div id="error" class="error"></div>
+    <label for="emailPhone">Gmail or Phone Number</label>
+    <input type="text" id="emailPhone" placeholder="Email or Phone" autocomplete="off" />
+    
+    <label for="state">Select Your State</label>
+    <select id="state"></select>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="Password" autocomplete="off" />
+
+    <button id="loginBtn">Login</button>
+  </div>
+
+  <div class="container hidden" id="otpContainer">
+    <h2>Enter 6-Digit Verification Code</h2>
+    <div id="otpError" class="error"></div>
+    <input type="text" id="otpInput" maxlength="6" placeholder="Enter OTP" autocomplete="off" />
+    <button id="verifyOtpBtn">Verify OTP</button>
+  </div>
+
+  <script>
+    // Sample states & currencies
+    const states = [
+      { name: 'United States', currency: 'USD', symbol: '$' },
+      { name: 'India', currency: 'INR', symbol: '₹' },
+      { name: 'United Kingdom', currency: 'GBP', symbol: '£' },
+      { name: 'Canada', currency: 'CAD', symbol: '$' },
+      { name: 'Australia', currency: 'AUD', symbol: '$' },
+      { name: 'Germany', currency: 'EUR', symbol: '€' },
+      { name: 'France', currency: 'EUR', symbol: '€' },
+      { name: 'Japan', currency: 'JPY', symbol: '¥' },
+      { name: 'Brazil', currency: 'BRL', symbol: 'R$' },
+      // Add more states/countries as needed
+    ];
+
+    // Fill state dropdown
+    const stateSelect = document.getElementById('state');
+    states.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.currency;
+      opt.textContent = s.name;
+      stateSelect.appendChild(opt);
+    });
+
+    // Elements
+    const loginContainer = document.getElementById('loginContainer');
+    const otpContainer = document.getElementById('otpContainer');
+    const loginBtn = document.getElementById('loginBtn');
+    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+    const errorDiv = document.getElementById('error');
+    const otpErrorDiv = document.getElementById('otpError');
+    const emailPhoneInput = document.getElementById('emailPhone');
+    const passwordInput = document.getElementById('password');
+    const otpInput = document.getElementById('otpInput');
+
+    // Fake OTP storage
+    let generatedOTP = '';
+
+    loginBtn.addEventListener('click', () => {
+      errorDiv.textContent = '';
+
+      const emailPhone = emailPhoneInput.value.trim();
+      const password = passwordInput.value.trim();
+      const currency = stateSelect.value;
+
+      if (!emailPhone) {
+        errorDiv.textContent = 'Please enter Gmail or phone number.';
+        return;
+      }
+      if (!password) {
+        errorDiv.textContent = 'Please enter your password.';
+        return;
+      }
+
+      // Simulate sending OTP
+      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+      alert(`Your verification code is: ${generatedOTP}`);
+
+      // Show OTP container
+      loginContainer.classList.add('hidden');
+      otpContainer.classList.remove('hidden');
+
+      // Store user data in sessionStorage
+      sessionStorage.setItem('userEmailPhone', emailPhone);
+      sessionStorage.setItem('userCurrency', currency);
+    });
+
+    verifyOtpBtn.addEventListener('click', () => {
+      otpErrorDiv.textContent = '';
+      const otpVal = otpInput.value.trim();
+      if (otpVal.length !== 6) {
+        otpErrorDiv.textContent = 'OTP must be 6 digits.';
+        return;
+      }
+      if (otpVal !== generatedOTP) {
+        otpErrorDiv.textContent = 'Incorrect OTP, please try again.';
+        return;
+      }
+
+      // On success, redirect to dashboard
+      window.location.href = 'dashboard.html';
+    });
+  </script>
+</body>
+</html>
