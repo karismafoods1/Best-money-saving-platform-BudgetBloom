@@ -3,179 +3,473 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BudgetBloom Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <title>BudgetBloom Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: #2563eb;
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      padding: 0 20px;
-    }
-    .container {
-      background: white;
-      color: #111;
-      border-radius: 12px;
-      max-width: 400px;
-      width: 100%;
-      padding: 30px 25px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #2563eb;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 12px 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+    * {
       box-sizing: border-box;
     }
-    input:focus, select:focus {
-      outline: none;
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin: 0.5rem 0 0.25rem 0;
+      color: #2563eb;
+    }
+    header p {
+      font-weight: 400;
+      color: #374151;
+      margin: 0;
+    }
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      gap: 1.25rem;
+      width: 100%;
+      max-width: 1100px;
+    }
+    .card {
+      background: white;
+      padding: 1.25rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgb(0 0 0 / 0.05);
+      display: flex;
+      flex-direction: column;
+      min-height: 350px;
+      overflow: hidden;
+    }
+    h2 {
+      margin-top: 0;
+      color: #1e40af;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 0.75rem;
+      margin-bottom: 0.25rem;
+      color: #4b5563;
+    }
+    input[type="text"],
+    input[type="number"],
+    select {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1.5px solid #d1d5db;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #1f2937;
+      outline-offset: 2px;
+      outline-color: #3b82f6;
+      transition: border-color 0.3s ease;
+      width: 100%;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus {
       border-color: #2563eb;
-      box-shadow: 0 0 8px #2563ebaa;
     }
     button {
       background: #2563eb;
-      border: none;
       color: white;
+      padding: 12px 15px;
       font-weight: 700;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
+      font-size: 1.1rem;
       transition: background 0.3s ease;
+      margin-top: auto;
     }
     button:hover {
       background: #1e40af;
     }
-    .hidden {
-      display: none;
+    ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 170px;
+      overflow-y: auto;
+      margin-top: 1rem;
     }
-    .error {
-      color: #e02424;
+    ul li {
+      background: #e0e7ff;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: 600;
-      margin-bottom: 10px;
+      color: #1e40af;
+    }
+    ul li span.amount {
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .alert {
+      color: #b91c1c;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    /* Scrollbar styling for ul */
+    ul::-webkit-scrollbar {
+      width: 6px;
+    }
+    ul::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+    ul::-webkit-scrollbar-thumb {
+      background: #2563eb;
+      border-radius: 10px;
+    }
+
+    /* Responsive for smaller devices */
+    @media (max-width: 768px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+      .card {
+        min-height: auto;
+      }
+    }
+
+    /* Fullscreen emoji confetti container */
+    #emojiConfetti {
+      pointer-events: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: visible;
+      z-index: 9999;
+      display: none;
+      user-select: none;
+    }
+    .emoji {
+      position: absolute;
+      font-size: 2rem;
+      animation-name: floatUp;
+      animation-timing-function: ease-out;
+      animation-iteration-count: 1;
+    }
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-150px) rotate(360deg);
+      }
     }
   </style>
 </head>
 <body>
-  <div class="container" id="loginContainer">
-    <h2>BudgetBloom Login</h2>
-    <div id="error" class="error"></div>
-    <label for="emailPhone">Gmail or Phone Number</label>
-    <input type="text" id="emailPhone" placeholder="Email or Phone" autocomplete="off" />
-    
-    <label for="state">Select Your State</label>
-    <select id="state"></select>
+  <header>
+    <h1>BudgetBloom Dashboard</h1>
+    <p>Manage your budgets, track expenses & save smartly</p>
+  </header>
 
-    <label for="password">Password</label>
-    <input type="password" id="password" placeholder="Password" autocomplete="off" />
+  <main>
+    <!-- Budget Input -->
+    <section class="card" id="budgetCard">
+      <h2>Set Monthly Budget</h2>
+      <label for="budgetCategory">Category</label>
+      <input type="text" id="budgetCategory" placeholder="Example: Tea" />
+      
+      <label for="budgetAmount">Amount (₹ INR)</label>
+      <input type="number" id="budgetAmount" min="0" placeholder="Enter budget amount" />
 
-    <button id="loginBtn">Login</button>
-  </div>
+      <button id="addBudgetBtn">Add/Update Budget</button>
 
-  <div class="container hidden" id="otpContainer">
-    <h2>Enter 6-Digit Verification Code</h2>
-    <div id="otpError" class="error"></div>
-    <input type="text" id="otpInput" maxlength="6" placeholder="Enter OTP" autocomplete="off" />
-    <button id="verifyOtpBtn">Verify OTP</button>
-  </div>
+      <ul id="budgetList"></ul>
+    </section>
+
+    <!-- Expense Input -->
+    <section class="card" id="expenseCard">
+      <h2>Add Expense</h2>
+      <label for="expenseCategory">Category</label>
+      <select id="expenseCategory">
+        <option value="" disabled selected>Select category</option>
+      </select>
+
+      <label for="expenseAmount">Amount (₹ INR)</label>
+      <input type="number" id="expenseAmount" min="0" placeholder="Enter expense amount" />
+      
+      <button id="addExpenseBtn">Add Expense</button>
+
+      <ul id="expenseList"></ul>
+    </section>
+
+    <!-- Budget Overview & Chart -->
+    <section class="card" id="overviewCard">
+      <h2>Budget Overview</h2>
+      <canvas id="budgetChart" width="400" height="300"></canvas>
+      <div id="alerts"></div>
+      <button id="downloadBtn">Download Summary PDF</button>
+    </section>
+  </main>
+
+  <!-- Fullscreen emoji confetti container -->
+  <div id="emojiConfetti"></div>
+
+  <footer>
+    &copy; 2025 BudgetBloom. All rights reserved.
+  </footer>
 
   <script>
-    // Sample states & currencies
-    const states = [
-      { name: 'United States', currency: 'USD', symbol: '$' },
-      { name: 'India', currency: 'INR', symbol: '₹' },
-      { name: 'United Kingdom', currency: 'GBP', symbol: '£' },
-      { name: 'Canada', currency: 'CAD', symbol: '$' },
-      { name: 'Australia', currency: 'AUD', symbol: '$' },
-      { name: 'Germany', currency: 'EUR', symbol: '€' },
-      { name: 'France', currency: 'EUR', symbol: '€' },
-      { name: 'Japan', currency: 'JPY', symbol: '¥' },
-      { name: 'Brazil', currency: 'BRL', symbol: 'R$' },
-      // Add more states/countries as needed
-    ];
+    // Data storage for budgets & expenses
+    const budgets = {};
+    const expenses = {};
 
-    // Fill state dropdown
-    const stateSelect = document.getElementById('state');
-    states.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.currency;
-      opt.textContent = s.name;
-      stateSelect.appendChild(opt);
+    // DOM Elements
+    const budgetCategoryInput = document.getElementById('budgetCategory');
+    const budgetAmountInput = document.getElementById('budgetAmount');
+    const addBudgetBtn = document.getElementById('addBudgetBtn');
+    const budgetList = document.getElementById('budgetList');
+
+    const expenseCategorySelect = document.getElementById('expenseCategory');
+    const expenseAmountInput = document.getElementById('expenseAmount');
+    const addExpenseBtn = document.getElementById('addExpenseBtn');
+    const expenseList = document.getElementById('expenseList');
+
+    const alertsDiv = document.getElementById('alerts');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const emojiConfettiDiv = document.getElementById('emojiConfetti');
+
+    let budgetChart = null;
+
+    // Utility: Update expense categories dropdown
+    function refreshExpenseCategories() {
+      expenseCategorySelect.innerHTML = '<option value="" disabled selected>Select category</option>';
+      Object.keys(budgets).forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        expenseCategorySelect.appendChild(opt);
+      });
+    }
+
+    // Update budget list UI
+    function renderBudgets() {
+      budgetList.innerHTML = '';
+      for (const cat in budgets) {
+        const li = document.createElement('li');
+        const spent = expenses[cat] || 0;
+        li.textContent = `${cat}: Budget ₹${budgets[cat]} | Spent ₹${spent}`;
+        if (spent > budgets[cat]) {
+          li.style.color = '#b91c1c';
+        } else {
+          li.style.color = '#2563eb';
+        }
+        budgetList.appendChild(li);
+      }
+    }
+
+    // Update expenses list UI
+    function renderExpenses() {
+      expenseList.innerHTML = '';
+      for (const cat in expenses) {
+        const li = document.createElement('li');
+        li.textContent = `${cat}: ₹${expenses[cat]}`;
+        expenseList.appendChild(li);
+      }
+    }
+
+    // Add or update budget
+    addBudgetBtn.addEventListener('click', () => {
+      const cat = budgetCategoryInput.value.trim();
+      const amount = Number(budgetAmountInput.value);
+      if (!cat) {
+        alert('Please enter a budget category.');
+        return;
+      }
+      if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid budget amount.');
+        return;
+      }
+
+      budgets[cat] = amount;
+      if (!(cat in expenses)) expenses[cat] = 0; // Initialize if new
+      refreshExpenseCategories();
+      renderBudgets();
+      renderExpenses();
+      updateChart();
+      budgetCategoryInput.value = '';
+      budgetAmountInput.value = '';
     });
 
-    // Elements
-    const loginContainer = document.getElementById('loginContainer');
-    const otpContainer = document.getElementById('otpContainer');
-    const loginBtn = document.getElementById('loginBtn');
-    const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const errorDiv = document.getElementById('error');
-    const otpErrorDiv = document.getElementById('otpError');
-    const emailPhoneInput = document.getElementById('emailPhone');
-    const passwordInput = document.getElementById('password');
-    const otpInput = document.getElementById('otpInput');
-
-    // Fake OTP storage
-    let generatedOTP = '';
-
-    loginBtn.addEventListener('click', () => {
-      errorDiv.textContent = '';
-
-      const emailPhone = emailPhoneInput.value.trim();
-      const password = passwordInput.value.trim();
-      const currency = stateSelect.value;
-
-      if (!emailPhone) {
-        errorDiv.textContent = 'Please enter Gmail or phone number.';
+    // Add expense
+    addExpenseBtn.addEventListener('click', () => {
+      const cat = expenseCategorySelect.value;
+      const amount = Number(expenseAmountInput.value);
+      if (!cat) {
+        alert('Please select an expense category.');
         return;
       }
-      if (!password) {
-        errorDiv.textContent = 'Please enter your password.';
+      if (isNaN(amount) || amount <= 0) {
+        alert('Please enter a valid expense amount.');
         return;
       }
 
-      // Simulate sending OTP
-      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-      alert(`Your verification code is: ${generatedOTP}`);
+      if (!expenses[cat]) expenses[cat] = 0;
+      expenses[cat] += amount;
 
-      // Show OTP container
-      loginContainer.classList.add('hidden');
-      otpContainer.classList.remove('hidden');
-
-      // Store user data in sessionStorage
-      sessionStorage.setItem('userEmailPhone', emailPhone);
-      sessionStorage.setItem('userCurrency', currency);
+      renderBudgets();
+      renderExpenses();
+      updateChart();
+      checkAlertsAndShowEmoji(cat);
+      expenseAmountInput.value = '';
+      expenseCategorySelect.value = '';
     });
 
-    verifyOtpBtn.addEventListener('click', () => {
-      otpErrorDiv.textContent = '';
-      const otpVal = otpInput.value.trim();
-      if (otpVal.length !== 6) {
-        otpErrorDiv.textContent = 'OTP must be 6 digits.';
-        return;
+    // Chart.js initialization & update
+    function updateChart() {
+      const ctx = document.getElementById('budgetChart').getContext('2d');
+      const categories = Object.keys(budgets);
+      const budgetValues = categories.map(c => budgets[c]);
+      const spentValues = categories.map(c => expenses[c] || 0);
+
+      if (budgetChart) budgetChart.destroy();
+
+      budgetChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: categories,
+          datasets: [
+            {
+              label: 'Budget (₹)',
+              data: budgetValues,
+              backgroundColor: '#2563eb',
+            },
+            {
+              label: 'Spent (₹)',
+              data: spentValues,
+              backgroundColor: '#ef4444',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 50
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                font: { size: 14 }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Alert & full screen emoji confetti logic
+    function checkAlertsAndShowEmoji(category) {
+      const spent = expenses[category];
+      const budget = budgets[category];
+      alertsDiv.innerHTML = '';
+
+      if (spent > budget) {
+        const alertMsg = document.createElement('div');
+        alertMsg.className = 'alert';
+        alertMsg.textContent = `⚠️ You have exceeded your budget for ${category}!`;
+        alertsDiv.appendChild(alertMsg);
+      } else {
+        // Show full screen emoji confetti for 2 seconds
+        showEmojiConfetti();
       }
-      if (otpVal !== generatedOTP) {
-        otpErrorDiv.textContent = 'Incorrect OTP, please try again.';
-        return;
+    }
+
+    // Emoji confetti effect - full screen floating smileys
+    function showEmojiConfetti() {
+      emojiConfettiDiv.style.display = 'block';
+      emojiConfettiDiv.innerHTML = '';
+
+      const emojis = ['😊','😄','🌟','🎉','✨','💖','👍','🥳','💫'];
+      const count = 50;
+
+      for(let i=0; i<count; i++) {
+        const emoji = document.createElement('div');
+        emoji.className = 'emoji';
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+
+        // Random horizontal position within viewport
+        emoji.style.left = Math.random() * window.innerWidth + 'px';
+
+        // Start near bottom (150px above bottom) with random vertical position
+        emoji.style.top = (window.innerHeight + Math.random()*50) + 'px';
+
+        // Random animation duration between 2 and 4 seconds
+        emoji.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+        emojiConfettiDiv.appendChild(emoji);
       }
 
-      // On success, redirect to dashboard
-      window.location.href = 'dashboard.html';
+      // Hide after 2 seconds
+      setTimeout(() => {
+        emojiConfettiDiv.style.display = 'none';
+      }, 2000);
+    }
+
+    // Download PDF summary
+    downloadBtn.addEventListener('click', () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text('BudgetBloom Summary', 14, 20);
+
+      let y = 30;
+      doc.setFontSize(14);
+      for (const cat in budgets) {
+        const budgetAmt = budgets[cat];
+        const spentAmt = expenses[cat] || 0;
+        const status = spentAmt > budgetAmt ? 'Exceeded' : 'Within budget';
+
+        doc.text(`${cat}: Budget ₹${budgetAmt} | Spent ₹${spentAmt} | Status: ${status}`, 14, y);
+        y += 10;
+      }
+
+      doc.save('budget_summary.pdf');
     });
+
+    // Initial setup
+    refreshExpenseCategories();
+    updateChart();
+
   </script>
 </body>
 </html>
